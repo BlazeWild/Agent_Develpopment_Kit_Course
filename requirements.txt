@@ -7,3 +7,4 @@ python-dotenv==1.1.0
 pydantic
 uuid
 asyncio
+yfinanace #stock analyst
