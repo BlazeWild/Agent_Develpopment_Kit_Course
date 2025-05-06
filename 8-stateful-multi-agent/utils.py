@@ -218,3 +218,57 @@ async def process_agent_response(event):
 
     return final_response
 
+async def call_agent_async(runner, user_id, session_id, query):
+    """Call the agent asynchronously with the user's query."""
+    content = types.Content(role="user", parts=[types.Part(text=query)])
+    print(
+        f"\n{Colors.BG_GREEN}{Colors.BLACK}{Colors.BOLD}--- Running Query: {query} ---{Colors.RESET}"
+    )
+    final_response_text = None
+    agent_name = None
+
+    # Display state before processing the message
+    display_state(
+        runner.session_service,
+        runner.app_name,
+        user_id,
+        session_id,
+        "State BEFORE processing",
+    )
+
+    try:
+        async for event in runner.run_async(
+            user_id=user_id, session_id=session_id, new_message=content
+        ):
+            # Capture the agent name from the event if available
+            if event.author:
+                agent_name = event.author
+
+            response = await process_agent_response(event)
+            if response:
+                final_response_text = response
+    except Exception as e:
+        print(f"{Colors.BG_RED}{Colors.WHITE}ERROR during agent run: {e}{Colors.RESET}")
+
+    # Add the agent response to interaction history if we got a final response
+    if final_response_text and agent_name:
+        add_agent_response_to_history(
+            runner.session_service,
+            runner.app_name,
+            user_id,
+            session_id,
+            agent_name,
+            final_response_text,
+        )
+
+    # Display state after processing the message
+    display_state(
+        runner.session_service,
+        runner.app_name,
+        user_id,
+        session_id,
+        "State AFTER processing",
+    )
+
+    print(f"{Colors.YELLOW}{'-' * 30}{Colors.RESET}")
+    return final_response_text

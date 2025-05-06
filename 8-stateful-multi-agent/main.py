@@ -1,15 +1,17 @@
 #for creating session, handling queries, and managing history
 
 import asyncio
+import os
 
 #import the main customer service agent
 from customer_service_agent.agent import customer_service_agent
-from dotenv import load_dotenv
-from goole.adk.runners import Runner
+from dotenv import load_dotenv, find_dotenv
+from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from utils import add_user_query_to_history, call_agent_async
 
-load_dotenv()
+load_dotenv()   
+print(f"GOOGLE_API_KEY: {os.getenv('GOOGLE_API_KEY')}")
 
 #===PART 1: Initialize in-memory Session Service===
 #Using in-mempry storage for this example(non-persistent)
